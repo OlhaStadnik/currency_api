@@ -1,6 +1,11 @@
-from django.urls import path
-from .views import RegisterView
+from rest_framework import routers
+from .views import RegisterView, BalanceView
 
-urlpatterns = [
-    path('register/', RegisterView.as_view(), name='register'),
-]
+router = routers.DefaultRouter()
+router.register("register", RegisterView, basename="register")
+router.register("balance", BalanceView, basename="balance")
+
+urlpatterns = router.urls
+
+
+app_name = "api"

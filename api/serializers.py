@@ -11,5 +11,10 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
-        UserBalance.objects.create(user=user)  # Створюємо баланс 1000 монет
+        UserBalance.objects.create(user=user)
         return user
+
+class UserBalanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserBalance
+        fields = ["user", "balance"]
