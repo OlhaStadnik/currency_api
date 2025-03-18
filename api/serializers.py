@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import UserBalance
+from .models import UserBalance, CurrencyExchange
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -18,3 +18,10 @@ class UserBalanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserBalance
         fields = ["user", "balance"]
+
+
+class CurrencyExchangeSerializer(serializers.ModelSerializer):
+    rate = serializers.ReadOnlyField()
+    class Meta:
+        model = CurrencyExchange
+        fields = ["user", "currency_code", "rate", "created_at"]
