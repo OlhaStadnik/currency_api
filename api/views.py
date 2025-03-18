@@ -1,6 +1,7 @@
 import requests
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.utils.dateparse import parse_date
 from rest_framework import status, mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -75,3 +76,37 @@ class CurrencyExchangeView(viewsets.GenericViewSet):
 
         serializer = self.get_serializer(currency_exchange)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class HistoryView(viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CurrencyExchangeSerializer
+
+    def get_queryset(self):
+
+        user = self.request.user
+        queryset = CurrencyExchange.objects.filter(user=user)
+
+        currency_code = self.request.query_params.get("currency_code")
+        if currency_code:
+            queryset = queryset.filter(currency_code=currency_code)
+
+        date = self.request.query_params.get("date")
+        start_date = self.request.query_params.get("start_date")
+        end_date = self.request.query_params.get("end_date")
+
+        if date:
+            date = parse_date(date)
+            queryset = queryset.filter(created_at__date=date.date())
+        if start_date:
+            queryset = queryset.filter(created_at__gte=parse_date(start_date))
+        if end_date:
+            queryset = queryset.filter(created_at__lte=parse_date(end_date))
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
